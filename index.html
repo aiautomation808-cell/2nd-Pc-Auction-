@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DRTECHTRICK | Live PC Auction</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital,wght@0,700;0,900;1,900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #FFFFFF;
+      --surface: #F5F5F5;
+      --border: #000000;
+      --text: #0A0A0A;
+      --muted: #555555;
+      --primary: #0066FF;
+      --primary-dark: #0044CC;
+      --danger: #CC0000;
+      --success: #006633;
+      --shadow: 6px 6px 0px var(--border);
+      --shadow-hover: 9px 9px 0px var(--border);
+      --shadow-active: 3px 3px 0px var(--border);
+    }
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+    }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+    h1, h2, h3, .playfair { 
+      font-family: 'Playfair Display', serif; 
+    }
+    .mono { 
+      font-family: 'JetBrains Mono', monospace; 
+    }
+    
+    /* Neo-Brutalism Utilities */
+    .brutal {
+      border: 2px solid var(--border);
+      box-shadow: var(--shadow);
+      border-radius: 0;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      background: var(--surface);
+    }
+    .brutal:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: var(--shadow-hover);
+    }
+    .brutal:active {
+      transform: translate(3px, 3px);
+      box-shadow: var(--shadow-active);
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 1rem 2rem;
+      background: var(--text);
+      color: var(--bg);
+      text-transform: uppercase;
+      font-weight: bold;
+      letter-spacing: 0.15em;
+      cursor: pointer;
+      text-decoration: none;
+      border: 2px solid var(--border);
+      box-shadow: 6px 6px 0px var(--primary);
+      border-radius: 0;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-align: center;
+    }
+    .btn:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: 9px 9px 0px var(--primary);
+      color: var(--bg);
+    }
+    .btn:active {
+      transform: translate(3px, 3px);
+      box-shadow: 3px 3px 0px var(--primary);
+    }
+
+    /* Scroll Progress */
+    #scroll-progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      background: var(--primary);
+      z-index: 101;
+      width: 0%;
+    }
+
+    /* Navbar */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: var(--bg);
+      border-bottom: 2px solid var(--border);
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2rem;
+    }
+    .brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.75rem;
+      font-weight: 900;
+      font-style: italic;
+      position: relative;
+      display: inline-block;
+      cursor: default;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .brand:hover {
+        animation: glitch-anim 0.4s infinite;
+      }
+    }
+    @keyframes glitch-anim {
+      0% { text-shadow: 2px 0 var(--primary), -2px 0 var(--danger); transform: translate(1px,1px); }
+      25% { text-shadow: -2px 0 var(--danger), 2px 0 var(--primary); transform: translate(-1px,-1px); }
+      50% { text-shadow: 2px 0 var(--danger), -2px 0 var(--primary); transform: translate(-1px,1px); }
+      75% { text-shadow: -2px 0 var(--primary), 2px 0 var(--danger); transform: translate(1px,-1px); }
+      100% { text-shadow: 2px 0 var(--primary), -2px 0 var(--danger); transform: translate(1px,1px); }
+    }
+    .nav-links { 
+      display: flex; 
+      gap: 2rem; 
+      font-weight: bold; 
+      letter-spacing: 0.1em; 
+      text-transform: uppercase; 
+    }
+    .nav-links a { 
+      color: var(--text); 
+      text-decoration: none; 
+      font-size: 0.9rem; 
+    }
+    .nav-links a:hover { 
+      color: var(--primary); 
+    }
+
+    /* Ticker */
+    .ticker-wrap {
+      margin-top: 76px; /* below nav */
+      overflow: hidden;
+      background: var(--text);
+      color: var(--bg);
+      padding: 0.75rem 0;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+    .ticker {
+      display: inline-block;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      font-size: 0.85rem;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .ticker {
+        animation: ticker-scroll 30s linear infinite;
+      }
+      .ticker-wrap:hover .ticker { 
+        animation-play-state: paused; 
+      }
+    }
+    @keyframes ticker-scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Hero Section */
+    .hero {
+      min-height: calc(100vh - 110px);
+      padding: 6rem 2rem 4rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 1440px;
+      margin: 0 auto;
+    }
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+    .h1-container { 
+      overflow: hidden; 
+    }
+    h1 {
+      font-size: clamp(48px, 10vw, 96px);
+      font-weight: 900;
+      font-style: italic;
+      line-height: 0.95;
+    }
+    .word {
+      display: inline-block;
+      opacity: 0;
+      transform: translateY(80px);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .word { animation: flyUp 0.6s ease-out forwards; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .word { opacity: 1; transform: translateY(0); }
+    }
+    .w1 { animation-delay: 0.15s; }
+    .w2 { animation-delay: 0.3s; }
+    @keyframes flyUp { 
+      to { opacity: 1; transform: translateY(0); } 
+    }
+
+    .hero-badge {
+      background: var(--primary);
+      color: var(--bg);
+      padding: 0.75rem 1.5rem;
+      font-weight: bold;
+      letter-spacing: 0.15em;
+      border: 2px solid var(--border);
+      box-shadow: 4px 4px 0px var(--border);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .hero-badge { animation: pulseBorder 2s infinite; }
+    }
+    @keyframes pulseBorder {
+      0%, 100% { box-shadow: 4px 4px 0px var(--border); }
+      50% { box-shadow: 6px 6px 0px var(--danger); }
+    }
+
+    .blue-rule {
+      height: 2px;
+      background: var(--primary);
+      margin: 3rem 0;
+      width: 0%;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .blue-rule { animation: expandWidth 1s 0.8s ease-out forwards; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .blue-rule { width: 100%; }
+    }
+    @keyframes expandWidth { 
+      to { width: 100%; } 
+    }
+
+    .build-value {
+      font-size: clamp(32px, 5vw, 64px);
+      font-weight: bold;
+      opacity: 0;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .build-value { animation: fadeIn 1s 1.5s ease-out forwards; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .build-value { opacity: 1; }
+    }
+    @keyframes fadeIn { 
+      to { opacity: 1; } 
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 4rem;
+    }
+    .stat-box { 
+      padding: 2.5rem; 
+      display: flex; 
+      flex-direction: column; 
+    }
+    .stat-label { 
+      font-size: 0.9rem; 
+      letter-spacing: 0.15em; 
+      font-weight: bold; 
+      margin-bottom: 0.75rem; 
+      text-transform: uppercase; 
+      color: var(--muted);
+    }
+    .stat-value { 
+      font-size: 3rem; 
+      font-weight: bold; 
+    }
+    
+    .scramble-hover { 
+      display: inline-block; 
+      position: relative; 
+      cursor: default;
+    }
+
+    .hero-cta { 
+      margin-top: 4rem; 
+    }
+
+    /* Components Section */
+    .section { 
+      padding: 8rem 2rem; 
+      max-width: 1440px; 
+      margin: 0 auto; 
+    }
+    .section-head { 
+      margin-bottom: 4rem; 
+    }
+    .section-head h2 { 
+      font-size: clamp(36px, 5vw, 48px);
+      font-weight: bold; 
+    }
+    .section-head p { 
+      font-size: 1.1rem; 
+      color: var(--muted); 
+      margin-top: 0.5rem; 
+      font-style: italic;
+    }
+
+    .grid { 
+      display: grid; 
+      grid-template-columns: repeat(1, 1fr); 
+      gap: 2.5rem; 
+    }
+    @media (min-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+
+    .card {
+      padding: 2.5rem 2rem;
+      position: relative;
+      cursor: crosshair;
+      background: var(--bg);
+      transform-style: preserve-3d;
+      opacity: 0; 
+      transform: translateY(60px); 
+      transition: opacity 0.6s, transform 0.6s;
+    }
+    .card.visible { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
+    .card-name { 
+      font-size: 1.25rem; 
+      margin-bottom: 1.5rem; 
+      line-height: 1.3;
+      font-weight: bold;
+    }
+    .card-price { 
+      font-size: 1.5rem; 
+      color: var(--muted); 
+    }
+    .card-verified {
+      position: absolute; 
+      top: 1.5rem; 
+      right: 1.5rem;
+      color: var(--primary); 
+      font-size: 0.75rem; 
+      font-weight: bold;
+      border: 1px solid var(--primary); 
+      padding: 0.25rem 0.5rem;
+      letter-spacing: 0.1em;
+    }
+    .card-glare {
+      position: absolute; 
+      inset: 0; 
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 50%, rgba(0, 102, 255, 0.1), transparent 50%);
+      opacity: 0; 
+      transition: opacity 0.3s;
+    }
+    .card:hover .card-glare { 
+      opacity: 1; 
+    }
+
+    .total-box {
+      margin-top: 5rem; 
+      padding: 4rem 2rem;
+      background: var(--text); 
+      color: var(--bg);
+      text-align: center; 
+      border: 2px solid var(--border);
+      box-shadow: 12px 12px 0px var(--primary);
+    }
+    .total-value { 
+      font-size: clamp(32px, 5vw, 64px); 
+      margin-bottom: 1rem; 
+    }
+
+    /* Live Countdown Section */
+    .countdown-sec {
+      background: var(--text); 
+      color: var(--bg);
+      padding: 8rem 2rem; 
+      text-align: center;
+      border-top: 2px solid var(--primary);
+      border-bottom: 2px solid var(--primary);
+    }
+    #countdown-timer {
+      display: flex; 
+      justify-content: center; 
+      gap: 1rem; 
+      flex-wrap: wrap;
+      font-size: clamp(40px, 8vw, 120px); 
+      font-weight: bold;
+    }
+    .time-unit { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      min-width: 1.5ch;
+    }
+    .time-label { 
+      font-size: 0.9rem; 
+      font-family: 'DM Sans', sans-serif; 
+      letter-spacing: 0.2em; 
+      color: var(--muted); 
+      margin-top: 1rem; 
+    }
+    .colon { 
+      padding-bottom: 3rem; 
+      color: var(--primary);
+    }
+
+    /* Bid Form Section */
+    #bid {
+      max-width: 800px;
+    }
+    form { 
+      display: flex; 
+      flex-direction: column; 
+      gap: 2.5rem; 
+    }
+    .form-group { 
+      position: relative; 
+    }
+    .form-group label {
+      display: block; 
+      font-weight: bold; 
+      letter-spacing: 0.1em; 
+      text-transform: uppercase;
+      margin-bottom: 0.75rem; 
+      transition: color 0.2s, transform 0.2s;
+    }
+    .form-group input {
+      width: 100%; 
+      padding: 1.5rem; 
+      font-size: 1.25rem;
+      border: 2px solid var(--border); 
+      box-shadow: var(--shadow);
+      background: var(--surface); 
+      color: var(--text);
+      border-radius: 0; 
+      outline: none; 
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus { 
+      border-color: var(--primary); 
+    }
+    .form-group input:focus + .focus-line { 
+      width: 100%; 
+    }
+    .focus-line {
+      position: absolute; 
+      bottom: -2px; 
+      left: 0; 
+      height: 2px; 
+      width: 0%;
+      background: var(--primary); 
+      transition: width 0.3s ease;
+    }
+    .btn-submit { 
+      font-family: 'Playfair Display', serif; 
+      font-size: 1.5rem; 
+      width: 100%; 
+      margin-top: 2rem; 
+      padding: 1.5rem;
+    }
+
+    #success-panel {
+      display: none;
+      background: var(--success); 
+      color: var(--bg);
+      padding: 5rem 2rem; 
+      text-align: center; 
+      border: 2px solid var(--border); 
+      box-shadow: var(--shadow);
+    }
+    .check-icon { 
+      width: 80px; 
+      height: 80px; 
+      margin: 0 auto 2rem; 
+    }
+    .check-path { 
+      stroke-dasharray: 100; 
+      stroke-dashoffset: 100; 
+      animation: drawCheck 1s forwards cubic-bezier(0.65, 0, 0.45, 1); 
+    }
+    @keyframes drawCheck { 
+      to { stroke-dashoffset: 0; } 
+    }
+    #success-text {
+      min-height: 3rem;
+    }
+
+    /* Footer */
+    footer { 
+      background: var(--text); 
+      color: var(--bg); 
+      padding: 4rem 2rem; 
+      border-top: 2px solid var(--primary); 
+    }
+    .footer-content { 
+      max-width: 1440px; 
+      margin: 0 auto; 
+      display: flex; 
+      justify-content: space-between; 
+      flex-wrap: wrap; 
+      gap: 2rem; 
+      align-items: center; 
+    }
+    .footer-content a { 
+      color: var(--bg); 
+      text-decoration: none;
+    }
+    .footer-content a:hover {
+      color: var(--primary);
+    }
+
+    /* Admin Overlay */
+    #admin-overlay {
+      position: fixed; 
+      inset: 0; 
+      background: rgba(0,0,0,0.9); 
+      z-index: 9999;
+      display: none; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      padding: 2rem;
+    }
+    .admin-modal { 
+      background: var(--bg); 
+      padding: 4rem 3rem; 
+      width: 100%; 
+      max-width: 500px; 
+      text-align: center; 
+    }
+    #admin-dashboard { 
+      display: none; 
+      background: var(--bg); 
+      padding: 2rem; 
+      width: 100%; 
+      max-width: 1200px; 
+      height: 85vh; 
+      overflow-y: auto; 
+    }
+    .admin-table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 2rem; 
+      font-size: 0.9rem;
+    }
+    .admin-table th, .admin-table td { 
+      border: 1px solid var(--border); 
+      padding: 1rem 0.75rem; 
+      text-align: left; 
+    }
+    .admin-table th { 
+      background: var(--text); 
+      color: var(--bg); 
+      font-family: 'JetBrains Mono', monospace; 
+    }
+    .highlight-blue { background: rgba(0, 102, 255, 0.1); }
+    .highlight-red { background: rgba(204, 0, 0, 0.1); }
+    .highlight-orange { background: rgba(255, 165, 0, 0.2); }
+    .badge { 
+      font-size: 0.7rem; 
+      font-weight: bold; 
+      padding: 2px 6px; 
+      border: 1px solid var(--border); 
+      margin-left: 0.5rem; 
+      font-family: 'DM Sans', sans-serif;
+    }
+    .badge.leading { background: var(--primary); color: white; }
+    .badge.dup { background: var(--danger); color: white; }
+    .badge.age { background: orange; color: black; }
+    .admin-stats { 
+      display: flex; 
+      gap: 3rem; 
+      margin-top: 1rem; 
+      flex-wrap: wrap; 
+      font-size: 1.25rem;
+    }
+    .admin-header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 2rem;
+    }
+
+    /* Utilities */
+    .glitch-flash { 
+      animation: flash-offset 0.25s; 
+    }
+    @keyframes flash-offset {
+      0% { transform: translate(0,0); opacity: 1; text-shadow:none; }
+      20% { transform: translate(4px, -4px); opacity: 0.5; text-shadow: 4px 0 var(--primary); }
+      40% { transform: translate(-4px, 4px); opacity: 0.8; text-shadow: -4px 0 var(--danger); }
+      60% { transform: translate(2px, -2px); opacity: 0.5; text-shadow: 2px 0 var(--primary); }
+      80% { transform: translate(-2px, 2px); opacity: 0.8; text-shadow: none; }
+      100% { transform: translate(0,0); opacity: 1; }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-10px); }
+      40%, 80% { transform: translateX(10px); }
+    }
+    .shake-anim {
+      animation: shake 0.4s;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      form { width: 100%; }
+      #countdown-timer { font-size: 48px; gap: 0.5rem; }
+      .hero { padding: 8rem 1.5rem 4rem; }
+      .admin-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+      .admin-header > div { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div id="scroll-progress"></div>
+
+  <nav>
+    <div class="brand">DRTECHTRICK</div>
+    <div class="nav-links">
+      <a href="#rig">The Rig</a>
+      <a href="#bid">Bid Now</a>
+    </div>
+  </nav>
+
+  <div class="ticker-wrap">
+    <div class="ticker">
+      ● AUCTION LIVE ● BIDS CLOSE JUNE 19 AT 6PM IST ● GENUINE BUYERS ONLY ● TOTAL BUILD VALUE ₹1,03,300 ● AMD RYZEN 5 3600 + GTX 1660 SUPER ● DRTECHTRICK CERTIFIED ● AUCTION LIVE ● BIDS CLOSE JUNE 19 AT 6PM IST ● GENUINE BUYERS ONLY ● TOTAL BUILD VALUE ₹1,03,300 ● AMD RYZEN 5 3600 + GTX 1660 SUPER ● DRTECHTRICK CERTIFIED ●
+    </div>
+  </div>
+
+  <header class="hero">
+    <div class="hero-top">
+      <div class="h1-container">
+        <h1>
+          <span class="word w1">THE</span><br>
+          <span class="word w2">RIG.</span>
+        </h1>
+      </div>
+      <div class="hero-badge">AUCTION LIVE</div>
+    </div>
+    
+    <div class="blue-rule"></div>
+    
+    <div class="build-value playfair">
+      ₹1,03,300 <span style="font-size:1.25rem; font-family:'DM Sans'; font-style:normal; color:var(--muted); font-weight:normal;">Value</span>
+    </div>
+    
+    <div class="hero-stats">
+      <div class="stat-box brutal">
+        <div class="stat-label scramble-hover" data-text="AUCTION ENDS">AUCTION ENDS</div>
+        <div class="stat-value mono" id="hero-countdown">--</div>
+      </div>
+      <div class="stat-box brutal">
+        <div class="stat-label scramble-hover" data-text="CURRENT BID">CURRENT BID</div>
+        <div class="stat-value mono" id="hero-bid">₹0</div>
+      </div>
+    </div>
+    
+    <div class="hero-cta">
+      <a href="#bid" class="btn">PLACE YOUR BID →</a>
+    </div>
+  </header>
+
+  <section id="rig" class="section">
+    <div class="section-head">
+      <h2>WHAT YOU'RE BUYING</h2>
+      <p>Every component. Every rupee. No hiding.</p>
+    </div>
+    <div class="grid" id="components-grid">
+      <!-- Injected by JS -->
+    </div>
+    <div class="total-box brutal">
+      <div class="total-value mono">TOTAL BUILD COST: ₹1,03,300</div>
+      <div class="playfair" style="font-style:italic; color:var(--muted); font-size:1.5rem;">Your winning bid is a fraction of this.</div>
+    </div>
+  </section>
+
+  <section class="countdown-sec">
+    <div id="countdown-timer" class="mono">
+      <div class="time-unit"><span class="val" id="cd-d">00</span><span class="time-label">DAYS</span></div>
+      <span class="colon">:</span>
+      <div class="time-unit"><span class="val" id="cd-h">00</span><span class="time-label">HOURS</span></div>
+      <span class="colon">:</span>
+      <div class="time-unit"><span class="val" id="cd-m">00</span><span class="time-label">MINUTES</span></div>
+      <span class="colon">:</span>
+      <div class="time-unit"><span class="val" id="cd-s">00</span><span class="time-label">SECONDS</span></div>
+    </div>
+  </section>
+
+  <section id="bid" class="section">
+    <div class="section-head">
+      <h2 style="font-style:italic;">MAKE YOUR MOVE</h2>
+    </div>
+    
+    <form id="bid-form">
+      <div class="form-group brutal" style="padding:0; border:none; box-shadow:none;">
+        <label class="scramble-hover" data-text="FULL NAME">FULL NAME</label>
+        <input type="text" id="bf-name" required autocomplete="name">
+        <div class="focus-line"></div>
+      </div>
+      <div class="form-group brutal" style="padding:0; border:none; box-shadow:none;">
+        <label class="scramble-hover" data-text="AGE (18+)">AGE (18+)</label>
+        <input type="number" id="bf-age" min="18" required>
+        <div class="focus-line"></div>
+      </div>
+      <div class="form-group brutal" style="padding:0; border:none; box-shadow:none;">
+        <label class="scramble-hover" data-text="WHATSAPP NUMBER">WHATSAPP NUMBER</label>
+        <input type="tel" id="bf-phone" pattern="[0-9]{10}" placeholder="10 Digits" required>
+        <div class="focus-line"></div>
+      </div>
+      <div class="form-group brutal" style="padding:0; border:none; box-shadow:none;">
+        <label class="scramble-hover" data-text="YOUR BID AMOUNT (₹)">YOUR BID AMOUNT (₹)</label>
+        <input type="number" id="bf-amount" class="mono" required>
+        <div class="focus-line"></div>
+      </div>
+      <button type="submit" class="btn btn-submit">🔒 LOCK IN MY BID</button>
+    </form>
+    
+    <div id="success-panel">
+      <svg class="check-icon" viewBox="0 0 52 52" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="26" cy="26" r="24" stroke="currentColor" stroke-dasharray="155" stroke-dashoffset="155"></circle>
+        <path class="check-path" d="M14 27l8 8 16-16"></path>
+      </svg>
+      <div id="success-text" class="mono" style="font-size:1.2rem; line-height:1.6;"></div>
+    </div>
+
+    <div id="closed-panel" style="display:none; padding: 4rem; background: var(--text); color: var(--bg); text-align:center; font-family:'Playfair Display'; font-size:2rem; font-style:italic; border: 2px solid var(--border); box-shadow: var(--shadow);">
+      THE AUCTION HAS CLOSED.<br>
+      <span style="font-family:'DM Sans'; font-size:1.1rem; font-style:normal; color:var(--muted); display:block; margin-top:1rem;">Thank you to all bidders.</span>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-content">
+      <div class="playfair" style="font-size:2rem; font-weight:900; font-style:italic;">DRTECHTRICK</div>
+      <div style="color:var(--muted);">All sales final. Genuine listings only.</div>
+      <div><a href="https://www.instagram.com/drtechtrick" target="_blank" class="mono" style="font-size:1rem;">INSTAGRAM ↗</a></div>
+    </div>
+  </footer>
+
+  <!-- Admin Overlay -->
+  <div id="admin-overlay">
+    <div id="admin-login" class="admin-modal brutal">
+      <h3 class="playfair" style="font-size:2.5rem; margin-bottom:2rem;">ADMIN ACCESS</h3>
+      <input type="password" id="admin-pwd" class="brutal" style="width:100%; padding:1.25rem; margin-bottom:1.5rem; text-align:center; font-size:1.5rem;" placeholder="Enter Passcode">
+      <button id="admin-submit" class="btn" style="width:100%">UNLOCK</button>
+      <div id="admin-err" style="color:var(--danger); margin-top:1.5rem; display:none; font-weight:bold; letter-spacing:0.1em;">ACCESS DENIED</div>
+    </div>
+    
+    <div id="admin-dashboard" class="brutal">
+      <div class="admin-header">
+        <h2 class="playfair" style="font-size:2.5rem; margin:0;">Control Panel</h2>
+        <div>
+          <button id="btn-export" class="btn" style="padding:0.75rem 1.5rem; font-size:0.8rem;">Export CSV</button>
+          <button id="btn-clear" class="btn" style="background:var(--danger); box-shadow:6px 6px 0px var(--border); padding:0.75rem 1.5rem; font-size:0.8rem; margin-left:1rem;">Clear All</button>
+          <button id="btn-close-admin" class="btn" style="padding:0.75rem 1.5rem; font-size:0.8rem; margin-left:1rem;">Close (Esc)</button>
+        </div>
+      </div>
+      <div class="admin-stats mono">
+        <div>Top: <span id="stat-top">0</span></div>
+        <div>Bids: <span id="stat-count">0</span></div>
+        <div>Avg: <span id="stat-avg">0</span></div>
+      </div>
+      <table class="admin-table mono">
+        <thead>
+          <tr>
+            <th>#</th><th>Name</th><th>Age</th><th>WhatsApp</th><th>Bid (₹)</th><th>Time</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="admin-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // System Data
+    const componentData = [
+      { name: "AMD Ryzen 5 3600 CPU", price: "₹8,800" },
+      { name: "Inno3D GTX 1660 Super GPU", price: "₹16,300" },
+      { name: "16GB DDR4 RAM (2x8 XPG)", price: "₹13,500" },
+      { name: "ASRock B450 Pro4 Motherboard", price: "₹7,500" },
+      { name: "500GB WD Blue SN570 NVMe", price: "₹21,000" },
+      { name: "2TB Seagate BarraCuda HDD", price: "₹14,000" },
+      { name: "Antec AX65 ARGB Cabinet", price: "₹3,100" },
+      { name: "550W Power Supply Unit", price: "₹2,200" },
+      { name: "OS, Assembly & Production Apps", price: "₹12,000" }
+    ];
+
+    // Initialize Grid
+    const gridEl = document.getElementById('components-grid');
+    componentData.forEach((component, idx) => {
+      const el = document.createElement('div');
+      el.className = 'card brutal tilt-card';
+      el.style.transitionDelay = `${idx * 100}ms`;
+      el.innerHTML = `
+        <div class="card-name playfair">${component.name}</div>
+        <div class="card-price mono">${component.price}</div>
+        <div class="card-verified mono">VERIFIED</div>
+        <div class="card-glare"></div>
+      `;
+      gridEl.appendChild(el);
+    });
+
+    // 3D Card Hover Effects
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('.tilt-card').forEach(card => {
+        card.addEventListener('mousemove', e => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const cx = rect.width / 2;
+          const cy = rect.height / 2;
+          const rx = ((y - cy) / cy) * -10;
+          const ry = ((x - cx) / cx) * 10;
+          
+          card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.02, 1.02, 1.02)`;
+          
+          const glare = card.querySelector('.card-glare');
+          if (glare) {
+            glare.style.background = `radial-gradient(circle at ${x}px ${y}px, rgba(0, 102, 255, 0.15), transparent 60%)`;
+          }
+        });
+        
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+          const glare = card.querySelector('.card-glare');
+          if (glare) {
+            glare.style.background = 'none';
+          }
+        });
+      });
+    }
+
+    // Intersection Observer for Component Cards
+    const scrollObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          scrollObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.card').forEach(c => scrollObserver.observe(c));
+
+    // Scroll Progress Indicator
+    window.addEventListener('scroll', () => {
+      const scrollPos = document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      document.getElementById("scroll-progress").style.width = ((scrollPos / height) * 100) + "%";
+    });
+
+    // JS Scramble Effect for labels
+    const glitchChars = '!<>-_\\/[]{}—=+*^?#';
+    document.querySelectorAll('.scramble-hover').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        const originalText = el.getAttribute('data-text');
+        if (!originalText) return;
+        
+        let iterations = 0;
+        const interval = setInterval(() => {
+          el.innerText = originalText.split('').map((letter, index) => {
+            if (letter === ' ') return ' ';
+            if (index < iterations) return originalText[index];
+            return glitchChars[Math.floor(Math.random() * glitchChars.length)];
+          }).join('');
+          
+          if (iterations >= originalText.length) {
+            clearInterval(interval);
+          }
+          iterations += 0.5;
+        }, 30);
+      });
+    });
+
+    // Live Bid Logic & LocalStorage
+    const BIDS_KEY = 'drtechtrick_bids';
+    let bidsData = JSON.parse(localStorage.getItem(BIDS_KEY)) || [];
+    let maxBidAmount = bidsData.length > 0 ? Math.max(...bidsData.map(b => Number(b.amount))) : 0;
+    
+    const bidLabelEl = document.getElementById('hero-bid');
+    
+    function refreshBidDisplay() {
+      bidLabelEl.innerText = '₹' + maxBidAmount.toLocaleString('en-IN');
+      bidLabelEl.classList.remove('glitch-flash');
+      void bidLabelEl.offsetWidth; // Trigger DOM reflow
+      bidLabelEl.classList.add('glitch-flash');
+    }
+    refreshBidDisplay();
+    
+    // Live Countdown
+    const END_DATE = new Date('2026-06-19T18:00:00+05:30').getTime();
+    const isAuctionClosed = Date.now() >= END_DATE;
+    
+    const formPanel = document.getElementById('bid-form');
+    const closedPanel = document.getElementById('closed-panel');
+    const heroCountdownDisplay = document.getElementById('hero-countdown');
+    
+    if (isAuctionClosed) {
+      formPanel.style.display = 'none';
+      closedPanel.style.display = 'block';
+      heroCountdownDisplay.innerText = "CLOSED";
+      document.querySelectorAll('.val').forEach(el => el.innerText = '00');
+    }
+
+    function fastScrambleDigit(element, realValue) {
+      let cycleCount = 0;
+      const scrambleInterval = setInterval(() => {
+        element.innerText = String(Math.floor(Math.random() * 100)).padStart(2, '0');
+        if (++cycleCount >= 6) {
+          clearInterval(scrambleInterval);
+          element.innerText = realValue;
+        }
+      }, 50);
+    }
+
+    function tickCountdown() {
+      const diff = END_DATE - Date.now();
+
+      if (diff <= 0) {
+        document.querySelectorAll('.val').forEach(el => el.innerText = '00');
+        heroCountdownDisplay.innerText = "CLOSED";
+        formPanel.style.display = 'none';
+        closedPanel.style.display = 'block';
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+      const strD = String(days).padStart(2, '0');
+      const strH = String(hours).padStart(2, '0');
+      const strM = String(mins).padStart(2, '0');
+      const strS = String(secs).padStart(2, '0');
+
+      // The prompt specifically asks for: "Each digit has a scramble effect every second (cycles through 0-9 rapidly for 300ms before landing on real value)"
+      fastScrambleDigit(document.getElementById('cd-s'), strS);
+      fastScrambleDigit(document.getElementById('cd-m'), strM);
+      fastScrambleDigit(document.getElementById('cd-h'), strH);
+      fastScrambleDigit(document.getElementById('cd-d'), strD);
+
+      heroCountdownDisplay.innerText = `${strD}d ${strH}h ${strM}m`;
+    }
+
+    if (!isAuctionClosed) {
+      tickCountdown();
+      setInterval(tickCountdown, 1000);
+    }
+
+    // Bid Form Submission
+    formPanel.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const newAmt = Number(document.getElementById('bf-amount').value);
+      if (newAmt <= maxBidAmount) {
+        alert('Your bid must be higher than the current top bid: ₹' + maxBidAmount.toLocaleString('en-IN'));
+        return;
+      }
+      
+      const newBid = {
+        id: Date.now().toString(),
+        name: document.getElementById('bf-name').value,
+        age: document.getElementById('bf-age').value,
+        phone: document.getElementById('bf-phone').value,
+        amount: newAmt,
+        time: new Date().toISOString()
+      };
+      
+      bidsData.push(newBid);
+      localStorage.setItem(BIDS_KEY, JSON.stringify(bidsData));
+      
+      maxBidAmount = newAmt;
+      refreshBidDisplay();
+      
+      formPanel.style.display = 'none';
+      const successPanel = document.getElementById('success-panel');
+      successPanel.style.display = 'block';
+      
+      // Typewriter Effect for success text
+      const msg = "BID LOCKED. Our team will contact the highest bidder on WhatsApp when the auction closes.";
+      const msgEl = document.getElementById('success-text');
+      msgEl.innerHTML = '';
+      let charIdx = 0;
+      const typeInterval = setInterval(() => {
+        msgEl.innerHTML += msg.charAt(charIdx);
+        charIdx++;
+        if (charIdx >= msg.length) clearInterval(typeInterval);
+      }, 40);
+    });
+
+    // Admin Panel System
+    const overlayAdmin = document.getElementById('admin-overlay');
+    const loginModal = document.getElementById('admin-login');
+    const dashAdmin = document.getElementById('admin-dashboard');
+    
+    document.addEventListener('keydown', e => {
+      // Trigger: Ctrl + Shift + A
+      if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
+        overlayAdmin.style.display = 'flex';
+        loginModal.style.display = 'block';
+        dashAdmin.style.display = 'none';
+        const pInput = document.getElementById('admin-pwd');
+        pInput.value = '';
+        pInput.focus();
+      }
+      
+      if (e.key === 'Escape' && overlayAdmin.style.display === 'flex') {
+        overlayAdmin.style.display = 'none';
+      }
+    });
+
+    function renderAdminDashboard() {
+      const tbody = document.getElementById('admin-tbody');
+      tbody.innerHTML = '';
+      
+      const sortedBids = [...bidsData].sort((a,b) => b.amount - a.amount);
+      let sumAmount = 0;
+      const phoneList = bidsData.map(b => b.phone);
+      
+      sortedBids.forEach((bid, idx) => {
+        sumAmount += Number(bid.amount);
+        const row = document.createElement('tr');
+        
+        const isDuplicate = phoneList.filter(p => p === bid.phone).length > 1;
+        const isUnderage = Number(bid.age) < 18;
+        
+        if (idx === 0) row.classList.add('highlight-blue');
+        else if (isDuplicate) row.classList.add('highlight-red');
+        else if (isUnderage) row.classList.add('highlight-orange');
+
+        let badgesHTML = '';
+        if (idx === 0) badgesHTML += '<span class="badge leading">👑 LEADING</span>';
+        if (isDuplicate) badgesHTML += '<span class="badge dup">⚠ DUPLICATE</span>';
+        if (isUnderage) badgesHTML += '<span class="badge age">⚠ UNDERAGE</span>';
+
+        const dateObj = new Date(bid.time);
+        
+        row.innerHTML = `
+          <td>${idx + 1}</td>
+          <td>${bid.name} ${badgesHTML}</td>
+          <td>${bid.age}</td>
+          <td>${bid.phone}</td>
+          <td>₹${Number(bid.amount).toLocaleString('en-IN')}</td>
+          <td>${dateObj.toLocaleDateString()} ${dateObj.toLocaleTimeString()}</td>
+          <td>
+            <button class="btn" style="padding:0.4rem 0.75rem; font-size:0.75rem; background:var(--text)" onclick="deleteSpecificBid('${bid.id}')">Del</button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      document.getElementById('stat-top').innerText = sortedBids.length ? '₹' + sortedBids[0].amount.toLocaleString('en-IN') : '₹0';
+      document.getElementById('stat-count').innerText = sortedBids.length;
+      document.getElementById('stat-avg').innerText = sortedBids.length ? '₹' + Math.floor(sumAmount / sortedBids.length).toLocaleString('en-IN') : '₹0';
+    }
+
+    window.deleteSpecificBid = function(targetId) {
+      if (confirm('Delete this user\'s bid?')) {
+        bidsData = bidsData.filter(b => b.id !== targetId);
+        localStorage.setItem(BIDS_KEY, JSON.stringify(bidsData));
+        maxBidAmount = bidsData.length ? Math.max(...bidsData.map(b => Number(b.amount))) : 0;
+        refreshBidDisplay();
+        renderAdminDashboard();
+      }
+    }
+
+    document.getElementById('admin-submit').addEventListener('click', () => {
+      const pwdInput = document.getElementById('admin-pwd');
+      const errBox = document.getElementById('admin-err');
+      
+      if (pwdInput.value === 'drtechtrick2026') {
+        loginModal.style.display = 'none';
+        dashAdmin.style.display = 'block';
+        errBox.style.display = 'none';
+        renderAdminDashboard();
+      } else {
+        errBox.style.display = 'block';
+        loginModal.classList.remove('shake-anim');
+        void loginModal.offsetWidth; // Reflow
+        loginModal.classList.add('shake-anim');
+      }
+    });
+
+    document.getElementById('admin-pwd').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') document.getElementById('admin-submit').click();
+    });
+
+    document.getElementById('btn-close-admin').addEventListener('click', () => overlayAdmin.style.display = 'none');
+    
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      if (confirm('DANGER: Clear completely ALL bids? This action cannot be undone.')) {
+        bidsData = [];
+        localStorage.removeItem(BIDS_KEY);
+        maxBidAmount = 0;
+        refreshBidDisplay();
+        renderAdminDashboard();
+      }
+    });
+
+    document.getElementById('btn-export').addEventListener('click', () => {
+      if (!bidsData.length) return alert('No bids available to export.');
+      const headers = ["ID", "Name", "Age", "WhatsApp", "Amount", "Timestamp"];
+      const csvData = [headers];
+      
+      bidsData.forEach(b => {
+        csvData.push([b.id, `"${b.name}"`, b.age, b.phone, b.amount, b.time]);
+      });
+      
+      const csvStr = csvData.map(row => row.join(',')).join('\\n');
+      const blobPart = new Blob([csvStr], { type: 'text/csv' });
+      const dlUrl = URL.createObjectURL(blobPart);
+      
+      const anchorNode = document.createElement('a');
+      anchorNode.href = dlUrl;
+      anchorNode.download = 'drtechtrick_bids_export.csv';
+      anchorNode.click();
+      
+      URL.revokeObjectURL(dlUrl);
+    });
+
+  </script>
+</body>
+</html>
