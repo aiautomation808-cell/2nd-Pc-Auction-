@@ -756,7 +756,10 @@
     <div class="footer-content">
       <div class="playfair" style="font-size:2rem; font-weight:900; font-style:italic;">DRTECHTRICK</div>
       <div style="color:var(--muted);">All sales final. Genuine listings only.</div>
-      <div><a href="https://www.instagram.com/drtechtrick" target="_blank" class="mono" style="font-size:1rem;">INSTAGRAM ↗</a></div>
+      <div>
+        <a href="#" id="mobile-admin-btn" class="mono" style="font-size:1rem; margin-right:1.5rem; color:var(--muted);">ADMIN</a>
+        <a href="https://www.instagram.com/drtechtrick" target="_blank" class="mono" style="font-size:1rem;">INSTAGRAM ↗</a>
+      </div>
     </div>
   </footer>
 
@@ -926,7 +929,7 @@
           age: d.age,
           phone: d.phone,
           amount: d.amount,
-          time: d.createdAt ? d.createdAt.toDate().toISOString() : new Date().toISOString()
+          time: (d.createdAt && typeof d.createdAt.toDate === 'function') ? d.createdAt.toDate().toISOString() : new Date().toISOString()
         });
       });
       
@@ -1060,20 +1063,48 @@
     const loginModal = document.getElementById('admin-login');
     const dashAdmin = document.getElementById('admin-dashboard');
     
+    // Tap to open admin on mobile (Tap DRTECHTRICK 5 times)
+    let adminTapCount = 0;
+    let adminTapTimer = null;
+    
+    function triggerAdminLogin() {
+      overlayAdmin.style.display = 'flex';
+      loginModal.style.display = 'block';
+      dashAdmin.style.display = 'none';
+      const pInput = document.getElementById('admin-pwd');
+      pInput.value = '';
+      pInput.focus();
+    }
+
     document.addEventListener('keydown', e => {
       // Trigger: Ctrl + Shift + A
       if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'a') {
-        overlayAdmin.style.display = 'flex';
-        loginModal.style.display = 'block';
-        dashAdmin.style.display = 'none';
-        const pInput = document.getElementById('admin-pwd');
-        pInput.value = '';
-        pInput.focus();
+        triggerAdminLogin();
       }
       
       if (e.key === 'Escape' && overlayAdmin.style.display === 'flex') {
         overlayAdmin.style.display = 'none';
       }
+    });
+
+    document.getElementById('mobile-admin-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      triggerAdminLogin();
+    });
+
+    // Hidden Entry (Easter Egg)
+    document.querySelectorAll('.brand, footer .playfair').forEach(el => {
+      el.addEventListener('click', () => {
+        adminTapCount++;
+        clearTimeout(adminTapTimer);
+        
+        if (adminTapCount >= 5) {
+          adminTapCount = 0;
+          triggerAdminLogin();
+        } else {
+          adminTapTimer = setTimeout(() => { adminTapCount = 0; }, 1500);
+        }
+      });
     });
 
     function renderAdminDashboard() {
