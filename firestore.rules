@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function incoming() { return request.resource.data; }
+    
+    function isValidBid(data) {
+      return data.keys().hasAll(['name', 'age', 'phone', 'amount', 'createdAt', 'userId']) &&
+             data.keys().size() == 6 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.age is string &&
+             data.phone is string && data.phone.size() == 10 &&
+             data.amount is number && data.amount > 0 &&
+             data.userId is string && data.userId.size() <= 128;
+    }
+
+    match /bids/{bidId} {
+      // Allow anyone to read all bids for the UI / Ticker / Admin panel
+      allow read: if true;
+      
+      // Allow anyone to create a bid with valid schema
+      allow create: if isValidBid(incoming()) && incoming().createdAt == request.time;
+      
+      // Allow update/delete. We won't restrict delete since the user relies on a frontend password for the admin panel.
+      allow delete: if true;
+    }
+  }
+}

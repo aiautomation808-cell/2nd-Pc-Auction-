@@ -794,7 +794,7 @@
     </div>
   </div>
 
-  <script>
+  <script type="module">
     // System Data
     const componentData = [
       { name: "AMD Ryzen 5 3600 CPU", price: "₹8,800" },
@@ -907,34 +907,47 @@
       bidLabelEl.classList.add('glitch-flash');
     }
 
-    async function fetchBids() {
-      try {
-        const res = await fetch('/api/bids');
-        const data = await res.json();
-        
-        const newMax = data.length > 0 ? Math.max(...data.map(b => Number(b.amount))) : 0;
-        let changed = false;
-        if (newMax !== maxBidAmount) {
-          maxBidAmount = newMax;
-          changed = true;
-        }
-        bidsData = data;
-        
-        if (changed) {
-          refreshBidDisplay();
-        }
-        
-        if (document.getElementById('admin-overlay').style.display === 'flex') {
-          renderAdminDashboard();
-        }
-      } catch (e) {
-        console.error("Failed to load live bids", e);
-      }
-    }
+    import { initializeApp } from "firebase/app";
+    import { getFirestore, collection, onSnapshot, addDoc, doc, deleteDoc, serverTimestamp, getDocs } from "firebase/firestore";
+    import firebaseConfig from "/firebase-applet-config.json";
 
-    // Init & Poll every 3 seconds for live syncing across clients
-    fetchBids();
-    setInterval(fetchBids, 3000);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+
+    const bidsCollection = collection(db, 'bids');
+
+    onSnapshot(bidsCollection, (snapshot) => {
+      const data = [];
+      snapshot.forEach((docSnap) => {
+        const d = docSnap.data();
+        data.push({
+          id: docSnap.id,
+          name: d.name,
+          age: d.age,
+          phone: d.phone,
+          amount: d.amount,
+          time: d.createdAt ? d.createdAt.toDate().toISOString() : new Date().toISOString()
+        });
+      });
+      
+      const newMax = data.length > 0 ? Math.max(...data.map(b => Number(b.amount))) : 0;
+      let changed = false;
+      if (newMax !== maxBidAmount) {
+        maxBidAmount = newMax;
+        changed = true;
+      }
+      bidsData = data;
+      
+      if (changed) {
+        refreshBidDisplay();
+      }
+      
+      if (document.getElementById('admin-overlay').style.display === 'flex') {
+        renderAdminDashboard();
+      }
+    }, (error) => {
+      console.error("Firebase sync error", error);
+    });
     
     // Live Countdown
     const END_DATE = new Date('2026-06-19T18:00:00+05:30').getTime();
@@ -1011,7 +1024,9 @@
         name: document.getElementById('bf-name').value,
         age: document.getElementById('bf-age').value,
         phone: document.getElementById('bf-phone').value,
-        amount: newAmt
+        amount: newAmt,
+        createdAt: serverTimestamp(),
+        userId: 'anonymous'
       };
       
       // Setup optimistic UI update
@@ -1021,12 +1036,7 @@
       formPanel.style.display = 'none';
 
       try {
-        await fetch('/api/bids', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newBid)
-        });
-        fetchBids();
+        await addDoc(bidsCollection, newBid);
       } catch (err) {
         console.error(err);
       }
@@ -1113,8 +1123,7 @@
 
     window.deleteSpecificBid = async function(targetId) {
       if (confirm('Delete this user\'s bid?')) {
-        await fetch('/api/bids/' + targetId, { method: 'DELETE' });
-        await fetchBids();
+        await deleteDoc(doc(db, 'bids', targetId));
       }
     }
 
@@ -1143,8 +1152,10 @@
     
     document.getElementById('btn-clear').addEventListener('click', async () => {
       if (confirm('DANGER: Clear completely ALL bids? This action cannot be undone.')) {
-        await fetch('/api/bids', { method: 'DELETE' });
-        await fetchBids();
+        const snap = await getDocs(bidsCollection);
+        snap.forEach(async (d) => {
+          await deleteDoc(doc(db, 'bids', d.id));
+        });
       }
     });
 

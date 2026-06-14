@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "Bid": {
+      "title": "Bid",
+      "description": "A bid placed by a user for the PC auction.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Full name of the bidder."
+        },
+        "age": {
+          "type": "string",
+          "description": "Age of the bidder (must be 18+). Stored as string from the form input."
+        },
+        "phone": {
+          "type": "string",
+          "description": "10-digit WhatsApp number."
+        },
+        "amount": {
+          "type": "number",
+          "description": "The bid amount in rupees, must be higher than current max bid."
+        },
+        "createdAt": {
+          "type": "timestamp",
+          "description": "Server timestamp of when the bid was placed."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Anonymous user ID that placed the bid."
+        }
+      },
+      "required": ["name", "age", "phone", "amount", "createdAt", "userId"]
+    }
+  },
+  "firestore": {
+    "bids/{bidId}": {
+      "schema": "Bid",
+      "description": "Stores all bids placed globally."
+    }
+  }
+}
