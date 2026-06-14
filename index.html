@@ -895,20 +895,46 @@
       });
     });
 
-    // Live Bid Logic & LocalStorage
-    const BIDS_KEY = 'drtechtrick_bids';
-    let bidsData = JSON.parse(localStorage.getItem(BIDS_KEY)) || [];
-    let maxBidAmount = bidsData.length > 0 ? Math.max(...bidsData.map(b => Number(b.amount))) : 0;
-    
+    // Live Bid Logic via API
+    let bidsData = [];
+    let maxBidAmount = 0;
     const bidLabelEl = document.getElementById('hero-bid');
-    
+
     function refreshBidDisplay() {
       bidLabelEl.innerText = '₹' + maxBidAmount.toLocaleString('en-IN');
       bidLabelEl.classList.remove('glitch-flash');
       void bidLabelEl.offsetWidth; // Trigger DOM reflow
       bidLabelEl.classList.add('glitch-flash');
     }
-    refreshBidDisplay();
+
+    async function fetchBids() {
+      try {
+        const res = await fetch('/api/bids');
+        const data = await res.json();
+        
+        const newMax = data.length > 0 ? Math.max(...data.map(b => Number(b.amount))) : 0;
+        let changed = false;
+        if (newMax !== maxBidAmount) {
+          maxBidAmount = newMax;
+          changed = true;
+        }
+        bidsData = data;
+        
+        if (changed) {
+          refreshBidDisplay();
+        }
+        
+        if (document.getElementById('admin-overlay').style.display === 'flex') {
+          renderAdminDashboard();
+        }
+      } catch (e) {
+        console.error("Failed to load live bids", e);
+      }
+    }
+
+    // Init & Poll every 3 seconds for live syncing across clients
+    fetchBids();
+    setInterval(fetchBids, 3000);
     
     // Live Countdown
     const END_DATE = new Date('2026-06-19T18:00:00+05:30').getTime();
@@ -972,7 +998,7 @@
     }
 
     // Bid Form Submission
-    formPanel.addEventListener('submit', function(e) {
+    formPanel.addEventListener('submit', async function(e) {
       e.preventDefault();
       
       const newAmt = Number(document.getElementById('bf-amount').value);
@@ -982,21 +1008,28 @@
       }
       
       const newBid = {
-        id: Date.now().toString(),
         name: document.getElementById('bf-name').value,
         age: document.getElementById('bf-age').value,
         phone: document.getElementById('bf-phone').value,
-        amount: newAmt,
-        time: new Date().toISOString()
+        amount: newAmt
       };
       
-      bidsData.push(newBid);
-      localStorage.setItem(BIDS_KEY, JSON.stringify(bidsData));
-      
+      // Setup optimistic UI update
       maxBidAmount = newAmt;
       refreshBidDisplay();
       
       formPanel.style.display = 'none';
+
+      try {
+        await fetch('/api/bids', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newBid)
+        });
+        fetchBids();
+      } catch (err) {
+        console.error(err);
+      }
       const successPanel = document.getElementById('success-panel');
       successPanel.style.display = 'block';
       
@@ -1078,13 +1111,10 @@
       document.getElementById('stat-avg').innerText = sortedBids.length ? '₹' + Math.floor(sumAmount / sortedBids.length).toLocaleString('en-IN') : '₹0';
     }
 
-    window.deleteSpecificBid = function(targetId) {
+    window.deleteSpecificBid = async function(targetId) {
       if (confirm('Delete this user\'s bid?')) {
-        bidsData = bidsData.filter(b => b.id !== targetId);
-        localStorage.setItem(BIDS_KEY, JSON.stringify(bidsData));
-        maxBidAmount = bidsData.length ? Math.max(...bidsData.map(b => Number(b.amount))) : 0;
-        refreshBidDisplay();
-        renderAdminDashboard();
+        await fetch('/api/bids/' + targetId, { method: 'DELETE' });
+        await fetchBids();
       }
     }
 
@@ -1111,13 +1141,10 @@
 
     document.getElementById('btn-close-admin').addEventListener('click', () => overlayAdmin.style.display = 'none');
     
-    document.getElementById('btn-clear').addEventListener('click', () => {
+    document.getElementById('btn-clear').addEventListener('click', async () => {
       if (confirm('DANGER: Clear completely ALL bids? This action cannot be undone.')) {
-        bidsData = [];
-        localStorage.removeItem(BIDS_KEY);
-        maxBidAmount = 0;
-        refreshBidDisplay();
-        renderAdminDashboard();
+        await fetch('/api/bids', { method: 'DELETE' });
+        await fetchBids();
       }
     });
 
